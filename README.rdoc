@@ -1,0 +1,36 @@
+=Watir Robot GUI
+
+Unfortunately, due to the nature of the gems that this project leverages, it is not possible to bundle everything nicely into a JAR (and therefore into an EXE or APP as well). Certain files within the gems need to be _seekable_, which is not possible within an archived format like a JAR.
+
+For this reason, releases of this project are bundled with a copy of <tt>jruby-complete.jar</tt> as well as all required JAR dependencies.
+
+If you download the source, see the Rakefile tasks for methods for obtaining the dependencies, which are not included in this repository.
+
+==File Structure
+
+This is the file structure required for "releases" of this project.
+
+PROJECT_ROOT
+  setup-script (setup.bat, setup.sh)
+  start-script (start.bat, start.sh)
+  lib/
+    ruby/
+      wr-gems (local gem repo, contains all gem dependencies)
+    java/
+      miglayout.jar (Swing helper)
+    standalone/ (JAR's that will be called with system calls as exec's)
+      jruby-complete.jar
+      robotframework.jar
+    src/
+      watir_robot_gui.rb (entry point)
+      watir_robot_gui/
+        main_frame.rb
+	worker/
+	  edit_button.rb
+	  html_button.rb
+	  remote_server.rb
+	  run_button.rb
+	  xml_button.rb
+    resources/
+      icon (*.ico, *.icns, *.png)
+
