@@ -20,11 +20,15 @@ YARDOC_CACHE = File.join(RUBY_DEP_DIR, 'watir_robot_yardoc')
 PACKAGE_DIR = File.join(PROJECT_HOME, 'package')
 WIN_PACKAGE_DIR = File.join(PACKAGE_DIR, 'windows')
 OSX_PACKAGE_DIR = File.join(PACKAGE_DIR, 'osx')
-NIX_PACKAGE_DIR = File.join(PACKAGE_DIR, 'nix')
-
-# COMMON_RESOURCES = Dir.glob(File.join(PROJECT_HOME, 'resources/common/*'))
+LINUX_PACKAGE_DIR = File.join(PACKAGE_DIR, 'linux')
 
 namespace :clean do
+  desc "Clean everything"
+  task :all do
+    Rake::Task['clean:jars'].invoke
+    Rake::Task['clean:yardoc'].invoke
+    Rake::Task['clean:zip'].invoke
+  end
 
   desc "Clean out dependency jars"
   task :jars do
@@ -50,59 +54,88 @@ namespace :clean do
 end
 
 namespace :package do
-  desc "Setup for packing common across platforms"
-  task :setup do
-    # Clean and create directories
-	FileUtils.rm_rf(PACKAGE_DIR) if File.exists? PACKAGE_DIR
-	[WIN_PACKAGE_DIR, OSX_PACKAGE_DIR, NIX_PACKAGE_DIR].each do |d|
-		FileUtils.mkdir_p(d) unless File.exists? d
-		
-		# Copy over component parts
-		FileUtils.cp_r(SRC_DIR, d)
-		FileUtils.cp_r(LIB_DIR, d)
-		
-		# Create resources dir and move *.png icon in
-		FileUtils.mkdir_p(File.join(d, 'resources')) unless
-		  File.exists? File.join(d, 'resources')
-		FileUtils.cp(File.join(RESOURCE_DIR, 'watir_robot_icon.png'),
-		  File.join(d, 'resources/watir_robot_icon.png')
-	end
+
+  desc "Build packages for all platforms"
+  task :all do
+    puts "Setting up package directories..."
+    Rake::Task['package:setup:common'].invoke
+    puts "Building Windows distribution..."
+    Rake::Task['package:setup:windows'].invoke
+    puts "Building Mac OSX distribution..."
+    Rake::Task['package:setup:osx'].invoke
+    puts "Building Linux distribution..."
+    Rake::Task['package:setup:linux'].invoke
+
+    puts "Zipping up packages..."
+    FileUtils.cd(PACKAGE_DIR)
+    ['windows', 'osx', 'linux'].each do |platform|
+      temp_dir = "watir-robot-gui-#{platform}"
+      zip_file = "watir-robot-gui-#{platform}.zip"
+
+      # Rename folder so zip is platform-dependent
+      FileUtils.mv(platform, temp_dir)
+      Zip::ZipFile.open(zip_file, true) do |zf|
+        Dir.glob("#{temp_dir}/**/*").each do |f|
+          zf.add(f, f)
+        end
+      end
+      # Rename folder back to original
+      FileUtils.mv(temp_dir, platform)
+    end
+    puts "Build complete."
   end
-  
-  desc "Package Windows version of Watir Robot GUI"
-  task :windows do
-    # Setup batch file
-	FileUtils.cp(File.join(RESOURCE_DIR, 'setup.bat'), WIN_PACKAGE_DIR)
-	
-	# TODO: VBS files for making shorcuts to Desktop
-	
-	# Start batch file
-	FileUtils.cp(File.join(RESOURCE_DIR, 'start.bat'), WIN_PACKAGE_DIR)
-	
-	# Windows-format icon
-	FileUtils.cp(File.join(RESOURCE_DIR, 'watir_robot_gui.ico'), File.join(WIN_PACKAGE_DIR, 'resources/watir_robot_gui.ico'))
+
+  namespace :setup do
+    desc "Setup common to all packages"
+    task :common do
+      # Clean and create directories
+      FileUtils.rm_rf(PACKAGE_DIR) if File.exists? PACKAGE_DIR
+      [WIN_PACKAGE_DIR, OSX_PACKAGE_DIR, LINUX_PACKAGE_DIR].each do |d|
+        FileUtils.mkdir_p(d) unless File.exists? d
+        FileUtils.mkdir_p(File.join(d, 'resources'))
+
+        # Copy over component parts
+        FileUtils.cp_r(SRC_DIR, d)
+        FileUtils.cp_r(LIB_DIR, d)
+      end
+    end
+
+    desc "Package Windows version of Watir Robot GUI"
+    task :windows do
+      # Start batch file
+      FileUtils.cp(File.join(RESOURCE_DIR, 'windows/start.bat'), WIN_PACKAGE_DIR)
+
+        # Setup batch file
+      FileUtils.cp(File.join(RESOURCE_DIR, 'windows/setup.bat'), WIN_PACKAGE_DIR)
+      FileUtils.cp(File.join(RESOURCE_DIR, 'windows/create_shortcuts.vbs'), File.join(WIN_PACKAGE_DIR, 'resources'))
+
+      # Windows-format icon
+      FileUtils.cp(File.join(RESOURCE_DIR, 'windows/watir_robot_gui.ico'), File.join(WIN_PACKAGE_DIR, 'resources/watir_robot_gui.ico'))
+    end
+
+    desc "Package Mac OSX version of Watir Robot GUI"
+    task :osx do
+      # Start shell file
+      FileUtils.cp(File.join(RESOURCE_DIR, 'linux/start.sh'), OSX_PACKAGE_DIR)
+        # Setup shell file
+      FileUtils.cp(File.join(RESOURCE_DIR, 'linux/setup.sh'), OSX_PACKAGE_DIR)
+
+      # Mac-format icon
+      FileUtils.cp(File.join(RESOURCE_DIR, 'osx/watir_robot_gui.icns'), File.join(OSX_PACKAGE_DIR, 'resources/watir_robot_gui.icns'))
+    end
+
+    desc "Package Linux version of Watir Robot GUI"
+    task :linux do
+      # Start shell file
+      FileUtils.cp(File.join(RESOURCE_DIR, 'linux/start.sh'), LINUX_PACKAGE_DIR)
+      # Setup shell file
+      FileUtils.cp(File.join(RESOURCE_DIR, 'linux/setup.sh'), LINUX_PACKAGE_DIR)
+
+      # PNG-format icon
+      FileUtils.cp(File.join(RESOURCE_DIR, 'linux/watir_robot_gui.png'), File.join(LINUX_PACKAGE_DIR, 'resources/watir_robot_gui.png'))
+    end
   end
-  
-  desc "Package Mac OSX version of Watir Robot GUI"
-  task :osx do
-    # Setup shell file
-	FileUtils.cp(File.join(RESOURCE_DIR, 'setup.sh'), OSX_PACKAGE_DIR)
-	
-	# Start shell file
-	FileUtils.cp(File.join(RESOURCE_DIR, 'start.sh'), OSX_PACKAGE_DIR)
-	
-	# Windows-format icon
-	FileUtils.cp(File.join(RESOURCE_DIR, 'watir_robot_gui.icns'), File.join(OSX_PACKAGE_DIR, 'resources/watir_robot_gui.icns'))
-  end
-  
-  desc "Package *nix version of Watir Robot GUI"
-  task :nix do
-    # Setup shell file
-	FileUtils.cp(File.join(RESOURCE_DIR, 'setup.sh'), NIX_PACKAGE_DIR)
-	
-	# Start shell file
-	FileUtils.cp(File.join(RESOURCE_DIR, 'start.sh'), NIX_PACKAGE_DIR)
-  end
+end
 
 namespace :retrieve do
   desc "Retrieve jruby-complete.jar from Github downloads (custom build)"
@@ -145,7 +178,7 @@ namespace :retrieve do
   task :jars do
     Rake::Task['clean:jars'].invoke
     FileUtils.mkdir_p(JAVA_JAR_DIR) unless File.exists?(JAVA_JAR_DIR)
-	FileUtils.mkdir_p(STANDALONE_JAR_DIR) unless File.exists?(STANDALONE_JAR_DIR)
+    FileUtils.mkdir_p(STANDALONE_JAR_DIR) unless File.exists?(STANDALONE_JAR_DIR)
     
     puts "Please wait, downloading jars. This could take a while..."
     Rake::Task['retrieve:jruby_complete'].invoke
@@ -190,22 +223,6 @@ namespace :retrieve do
     puts "Retrieving yardoc cache..."
     Rake::Task['retrieve:yardoc']
     puts "Complete. All dependencies are satisfied."
-  end
-
-end
-
-namespace :zip do
-
-  desc "Zip up the dist directory with jar and friends"
-  task :dist do
-    FileUtils.cd(File.join(PROJECT_HOME, 'package'))
-    # Here there will be platform-specific folders ready for zippage
-    zip_file = 'watir-robot-gui.zip'
-    Zip::ZipFile.open(zip_file, true) do |zf|
-      Dir.glob('watir-robot-gui/**/*').each do |f|
-        zf.add(f, f)
-      end
-    end
   end
 
 end
