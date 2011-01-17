@@ -3,7 +3,7 @@ module WatirRobotGui
   #
   # Main frame of Watir Robot's GUI
   #
-  class MainFrame < JFrame
+  class MainFrame < javax.swing.JFrame
     def initialize
       # Set native look and feel instead of default Metal
       native_lf = UIManager.get_system_look_and_feel_class_name
