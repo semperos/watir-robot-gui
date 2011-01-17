@@ -124,7 +124,7 @@ namespace :retrieve do
     req = Net::HTTP::Get.new(uri.request_uri)
     resp = http.request(req)
 
-    open(File.join(STANDALONE_JAR_DIR, 'lib/standalone/robotframework.jar'), 'wb') do |file|
+    open(File.join(STANDALONE_JAR_DIR, 'robotframework.jar'), 'wb') do |file|
       file.write(resp.body)
     end
   end
