@@ -4,17 +4,17 @@ strDesktop = oShell.ExpandEnvironmentStrings("%USERPROFILE%\Desktop")
 projectHome = CreateObject("Scripting.FileSystemObject").GetAbsolutePathName(".")
 
 set watirRobotLink = oShell.CreateShortcut(strDesktop & "\Watir Robot.lnk" )
-watirRobotLink.TargetPath = projectHome & "\watir-robot-gui.jar"
+watirRobotLink.TargetPath = projectHome & "\start.bat"
 watirRobotLink.WindowStyle = 1
-watirRobotLink.IconLocation = projectHome & "\resources\watir_robot.ico"
+watirRobotLink.IconLocation = projectHome & "\resources\watir_robot_gui.ico"
 watirRobotLink.Description = "Shortcut to Run Watir Robot GUI"
 watirRobotLink.WorkingDirectory = projectHome
 watirRobotLink.Save
 
-set remoteServerLink = oShell.CreateShortcut(strDesktop & "\Remote Server.lnk" )
-remoteServerLink.TargetPath = projectHome & "\bin\wr-run-server.bat"
-remoteServerLink.WindowStyle = 1
-remoteServerLink.IconLocation = projectHome & "\resources\remote_server.ico"
-remoteServerLink.Description = "Shortcut to Run Watir Robot Remote Server"
-remoteServerLink.WorkingDirectory = projectHome
-remoteServerLink.Save
+REM set remoteServerLink = oShell.CreateShortcut(strDesktop & "\Remote Server.lnk" )
+REM remoteServerLink.TargetPath = projectHome & "\bin\wr-run-server.bat"
+REM remoteServerLink.WindowStyle = 1
+REM remoteServerLink.IconLocation = projectHome & "\resources\remote_server.ico"
+REM remoteServerLink.Description = "Shortcut to Run Watir Robot Remote Server"
+REM remoteServerLink.WorkingDirectory = projectHome
+REM remoteServerLink.Save
