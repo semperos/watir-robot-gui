@@ -1,0 +1,3 @@
+[submodule "submodules/watir-robot"]
+	path = submodules/watir-robot
+	url = git://github.com/semperos/watir-robot.git
