@@ -61,12 +61,24 @@ module WatirRobotGui
       # Definition #
       action_label = JLabel.new "Edit/Run Tests"
       edit_button = JButton.new "Edit Tests"
+
+      editor_rbutton_group = ButtonGroup.new
+      editor_rbutton_ride = JRadioButton.new("RIDE", true)
+      editor_rbutton_ride.set_action_command(:editor_ride)
+      editor_rbutton_default = JRadioButton.new("System Default", false)
+      editor_rbutton_default.set_action_command(:editor_default)
+      editor_buttons = [editor_rbutton_ride, editor_rbutton_default]
+      editor_buttons.each { |b| editor_rbutton_group.add b }
+      
       run_button = JButton.new "Run Tests"
 
       # Action Listeners #
       edit_button.add_action_listener do |event|
+        editor = nil
+        editor_buttons.each { |b| editor = b.text.downcase if b.selected? }
         sw = WatirRobotGui::Worker::EditButton.new
         sw.test_path = test_path_field.text
+        sw.editor = editor
         sw.execute
       end
 
@@ -100,6 +112,8 @@ module WatirRobotGui
       pane.add(JSeparator.new, "growx, wrap, gaptop 15")
       pane.add(edit_button, "sg button")
       pane.add(run_button, "sg button")
+      pane.add(editor_rbutton_ride, "wrap")
+      pane.add(editor_rbutton_default, "wrap")
 
       pane.add(result_label, "split, span, gaptop 15")
       pane.add(JSeparator.new, "growx, wrap, gaptop 15")
