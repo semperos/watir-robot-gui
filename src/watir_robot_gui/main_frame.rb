@@ -30,7 +30,7 @@ module WatirRobotGui
       file_label = JLabel.new "Choose File(s)"
       file_button = JButton.new "Open File"
       dir_button = JButton.new "Open Directory"
-      path_field = JTextField.new "Enter full path manually or use buttons above..."
+      test_path_field = JTextField.new "Enter full path manually or use buttons above..."
 
       # Action Listeners #
       file_button.add_action_listener do |event|
@@ -40,7 +40,7 @@ module WatirRobotGui
 
         return_val = chooser.show_open_dialog(self)
         if return_val == JFileChooser::APPROVE_OPTION
-          path_field.text = chooser.selected_file.get_absolute_file.to_s
+          test_path_field.text = chooser.selected_file.get_absolute_file.to_s
         end
       end
 
@@ -51,7 +51,7 @@ module WatirRobotGui
 
         return_val = chooser.show_open_dialog(self)
         if return_val == JFileChooser::APPROVE_OPTION
-          path_field.text = chooser.selected_file.get_absolute_file.to_s
+          test_path_field.text = chooser.selected_file.get_absolute_file.to_s
         end
       end
 
@@ -66,14 +66,14 @@ module WatirRobotGui
       # Action Listeners #
       edit_button.add_action_listener do |event|
         sw = WatirRobotGui::Worker::EditButton.new
-        sw.button = edit_button
+        sw.test_path = test_path_field.text
         sw.execute
       end
 
       run_button.add_action_listener do |event|
         sw = WatirRobotGui::Worker::RunButton.new
         sw.button = run_button
-        sw.test_path = path_field.text
+        sw.test_path = test_path_field.text
         sw.execute
       end
 
@@ -94,7 +94,7 @@ module WatirRobotGui
       pane.add(JSeparator.new, "growx, wrap")
       pane.add(file_button, "sg button")
       pane.add(dir_button, "sg button")
-      pane.add(path_field, "span,grow, gaptop 8")
+      pane.add(test_path_field, "span,grow, gaptop 8")
 
       pane.add(action_label, "split, span, gaptop 15")
       pane.add(JSeparator.new, "growx, wrap, gaptop 15")
