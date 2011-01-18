@@ -109,12 +109,12 @@ module WatirRobotGui
       self.set_content_pane(pane)
     end
 
-    def run_remote_server
+    def run_remote_server(host, port, yardoc_cache)
       # Run Robot Remote Server
       sw_remote_server = WatirRobotGui::Worker::RemoteServer.new
-      sw_remote_server.host = 'localhost'
-      sw_remote_server.port = 8270
-      sw_remote_server.yardoc_cache = 'yardoc'
+      sw_remote_server.host = host
+      sw_remote_server.port = port
+      sw_remote_server.yardoc_cache = yardoc_cache
       sw_remote_server.execute
     end
   end
