@@ -138,39 +138,73 @@ namespace :package do
 end
 
 namespace :retrieve do
+  desc "Pull down all dependencies"
+  task :all do
+    puts "Retrieving jar dependencies..."
+    Rake::Task['retrieve:jars'].invoke
+    puts "Retrieving gem dependencies..."
+    Rake::Task['retrieve:gem_repo'].invoke
+    puts "Retrieving yardoc cache..."
+    Rake::Task['retrieve:yardoc'].invoke
+    puts "Complete. All dependencies are satisfied."
+  end
+
+  desc "Create local repo of gems and package in jar file"
+  task :gem_repo do
+    # we'll use jruby-complete to run everything, so ensure it's there
+    Rake::Task['retrieve:jruby_complete'].invoke
+
+    FileUtils.mkdir_p RUBY_DEP_DIR unless File.exists?(RUBY_DEP_DIR)
+    FileUtils.cd LIB_DIR
+    FileUtils.mkdir 'wr-gems' unless File.exists?('wr-gems')
+    system("java -jar standalone/jruby-complete.jar -S gem install -i ./wr-gems --no-ri --no-rdoc watir_robot")
+    system("jar cf wr-gems.jar -C wr-gems .")
+    FileUtils.mv('wr-gems.jar', RUBY_DEP_DIR)
+  end
+
   desc "Retrieve jruby-complete.jar from Github downloads (custom build)"
   task :jruby_complete do
-    uri = URI.parse(REMOTE_JRUBY_JAR)
-    http = Net::HTTP.new(uri.host, uri.port)
-    req = Net::HTTP::Get.new(uri.request_uri)
-    resp = http.request(req)
+    jruby_jar = File.join(STANDALONE_JAR_DIR, 'jruby-complete.jar')
+    unless File.exists?(jruby_jar)
+      uri = URI.parse(REMOTE_JRUBY_JAR)
+      http = Net::HTTP.new(uri.host, uri.port)
+      req = Net::HTTP::Get.new(uri.request_uri)
+      resp = http.request(req)
 
-    open(File.join(STANDALONE_JAR_DIR, 'jruby-complete.jar'), 'wb') do |file|
-      file.write(resp.body)
+      open(jruby_jar, 'wb') do |file|
+        file.write(resp.body)
+      end
     end
   end
 
   desc "Retrieve Robot Framework from Google Code"
   task :robotframework do
-    uri = URI.parse(REMOTE_RF_JAR)
-    http = Net::HTTP.new(uri.host, uri.port)
-    req = Net::HTTP::Get.new(uri.request_uri)
-    resp = http.request(req)
+    robotframework_jar = File.join(STANDALONE_JAR_DIR, 'robotframework.jar')
+    unless File.exists?(robotframework_jar)
+      uri = URI.parse(REMOTE_RF_JAR)
+      http = Net::HTTP.new(uri.host, uri.port)
+      req = Net::HTTP::Get.new(uri.request_uri)
+      resp = http.request(req)
 
-    open(File.join(STANDALONE_JAR_DIR, 'robotframework.jar'), 'wb') do |file|
-      file.write(resp.body)
+      open(robotframework_jar, 'wb') do |file|
+        file.write(resp.body)
+      end
     end
+
   end
 
   desc "Retrieve MigLayout from its home site"
   task :miglayout do
-    uri = URI.parse(REMOTE_MIGLAYOUT_JAR)
-    http = Net::HTTP.new(uri.host, uri.port)
-    req = Net::HTTP::Get.new(uri.request_uri)
-    resp = http.request(req)
+    miglayout_jar = File.join(JAVA_JAR_DIR, 'miglayout.jar')
+    unless File.exists?(miglayout_jar)
+      uri = URI.parse(REMOTE_MIGLAYOUT_JAR)
+      http = Net::HTTP.new(uri.host, uri.port)
+      req = Net::HTTP::Get.new(uri.request_uri)
+      resp = http.request(req)
 
-    open(File.join(JAVA_JAR_DIR, 'miglayout.jar'), 'wb') do |file|
-      file.write(resp.body)
+      open(miglayout_jar, 'wb') do |file|
+        file.write(resp.body)
+      end
     end
   end
 
@@ -214,15 +248,6 @@ namespace :retrieve do
     FileUtils.cd(PROJECT_HOME)
     original_file = File.join(SUBMODULE_DIR, 'watir-robot/.yardoc')
     FileUtils.mv(original_file, YARDOC_CACHE)
-  end
-
-  desc "Pull down all dependencies"
-  task :all do
-    puts "Retrieving jar dependencies..."
-    Rake::Task['retrieve:jars']
-    puts "Retrieving yardoc cache..."
-    Rake::Task['retrieve:yardoc']
-    puts "Complete. All dependencies are satisfied."
   end
 
 end
