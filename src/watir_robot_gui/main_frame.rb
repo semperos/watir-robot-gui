@@ -35,10 +35,10 @@ module WatirRobotGui
       test_path_button_file = JButton.new "File"
       test_path_button_dir = JButton.new "Dir"
       # Results path
-      results_path_label = JLabel.new "Results Path:"
+      results_path_label = JLabel.new "Results Directory:"
       results_path_field = JTextField.new(150)
-      results_path_button_file = JButton.new "File"
       results_path_button_dir = JButton.new "Dir"
+      same_as_test_checkbox = JCheckBox.new("Same as Test Path?", true)
 
       # Action Listeners #
       test_path_button_file.add_action_listener do |event|
@@ -48,7 +48,8 @@ module WatirRobotGui
 
         return_val = chooser.show_open_dialog(self)
         if return_val == JFileChooser::APPROVE_OPTION
-          test_path_field.text = chooser.selected_file.get_absolute_file.to_s
+          val = test_path_field.text = chooser.selected_file.get_absolute_file.to_s
+          results_path_field.text = File.dirname(val) if same_as_test_checkbox.selected?
         end
       end
 
@@ -59,10 +60,21 @@ module WatirRobotGui
 
         return_val = chooser.show_open_dialog(self)
         if return_val == JFileChooser::APPROVE_OPTION
-          test_path_field.text = chooser.selected_file.get_absolute_file.to_s
+          val = test_path_field.text = chooser.selected_file.get_absolute_file.to_s
+          results_path_field.text = val if same_as_test_checkbox.selected?
         end
       end
 
+      results_path_button_dir.add_action_listener do |event|
+        chooser = JFileChooser.new
+        chooser.set_dialog_title "Choose a Directory for Results"
+        chooser.set_file_selection_mode(JFileChooser::DIRECTORIES_ONLY)
+
+        return_val = chooser.show_open_dialog(self)
+        if return_val == JFileChooser::APPROVE_OPTION
+          results_path_field.text = chooser.selected_file.get_absolute_file.to_s
+        end
+      end
 
       ### Action Buttons ###
 
@@ -104,10 +116,17 @@ module WatirRobotGui
       result_label = JLabel.new "3. View Results"
       html_button = JButton.new "HTML"
       xml_button = JButton.new "XML"
-      # We'll enable these after a test has run
-      html_button.set_enabled false
-      xml_button.set_enabled false
 
+      # Action Listeners #
+      html_button.add_action_listener do |event|
+        sw = WatirRobotGui::Worker::HtmlButton.new
+        sw.execute
+      end
+
+      xml_button.add_action_listener do |event|
+        sw = WatirRobotGui::Worker::XmlButton.new
+        sw.execute
+      end
 
       ### Add elements to pane and finish layout ###
 
@@ -121,8 +140,8 @@ module WatirRobotGui
 
       pane.add(results_path_label, "gaptop 8")
       pane.add(results_path_field, "grow, span 2, gaptop 8")
-      pane.add(results_path_button_file, "gaptop 8")
-      pane.add(results_path_button_dir, "gaptop 8")
+      pane.add(results_path_button_dir, "growx, span 2, gaptop 8")
+      pane.add(same_as_test_checkbox, "span 5")
 
       pane.add(action_label, "split, span, gaptop 15")
       pane.add(JSeparator.new, "growx, wrap, gaptop 15")
