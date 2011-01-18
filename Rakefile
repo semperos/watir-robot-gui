@@ -28,7 +28,7 @@ namespace :clean do
   task :all do
     Rake::Task['clean:jars'].invoke
     Rake::Task['clean:yardoc'].invoke
-    Rake::Task['clean:zip'].invoke
+    Rake::Task['clean:zips'].invoke
   end
 
   desc "Clean out dependency jars"
