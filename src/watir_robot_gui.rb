@@ -1,4 +1,7 @@
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
+# Add local gem repository created from extracted
+# JAR archive of gems
+ENV['GEM_PATH'] = File.join(File.expand_path(File.dirname(__FILE__)), '../lib/ruby/wr-gems')
 
 require 'java'
 require 'watir_robot_gui/main_frame'
@@ -8,7 +11,6 @@ require 'watir_robot_gui/worker/run_button'
 require 'watir_robot_gui/worker/html_button'
 require 'watir_robot_gui/worker/xml_button'
 require 'lib/java/miglayout'
-require 'lib/ruby/wr-gems'
 
 require 'rubygems'
 require 'robot_remote_server'
