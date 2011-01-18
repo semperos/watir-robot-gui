@@ -32,7 +32,8 @@ java_import 'net.miginfocom.swing.MigLayout'
 f = WatirRobotGui::MainFrame.new
 # @TODO: Add yardoc_options hash as well
 yardoc_cache = File.join(File.expand_path(File.dirname(__FILE__)), '../lib/ruby/watir_robot_yardoc')
-f.run_remote_server('localhost', 8270, yardoc_cache)
+yardoc_options = [[:docstring, ''], [:file, 'File'], [:source, 'Source Code']]
+f.run_remote_server('localhost', 8270, yardoc_cache, yardoc_options)
 f.set_size(280, 280)
 f.pack
 f.visible = true
