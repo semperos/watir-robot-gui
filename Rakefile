@@ -2,6 +2,7 @@ require 'fileutils'
 require 'net/http'
 require 'uri'
 require 'zip/zip'
+require 'yard'
 
 REMOTE_JRUBY_JAR = "http://jruby.org.s3.amazonaws.com/downloads/1.5.6/jruby-complete-1.5.6.jar"
 REMOTE_RF_JAR = "http://robotframework.googlecode.com/files/robotframework-2.5.5.jar"
@@ -243,11 +244,14 @@ namespace :retrieve do
       File.exists?(File.join(SUBMODULE_DIR, 'watir-robot/.git'))
 
     Rake::Task['clean:yardoc'].invoke
-    FileUtils.cd(File.join(SUBMODULE_DIR, 'watir-robot'))
-    system("yardoc")
-    FileUtils.cd(PROJECT_HOME)
-    original_file = File.join(SUBMODULE_DIR, 'watir-robot/.yardoc')
-    FileUtils.mv(original_file, YARDOC_CACHE)
+    Rake::Task['yard'].invoke
+    FileUtils.mv(File.join(PROJECT_HOME, 'watir_robot_yardoc'), YARDOC_CACHE)
   end
+end
 
+# This is actually to document the Watir Robot submodule,
+# so we can package the cache as part of the distribution
+YARD::Rake::YardocTask.new do |t|
+  t.files = ['submodules/watir-robot/lib/**/*.rb']
+  t.options = ['--db', 'watir_robot_yardoc', '--no-output', '--one-file']
 end
