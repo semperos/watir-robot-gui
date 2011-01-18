@@ -137,7 +137,7 @@ module WatirRobotGui
                             JOptionPane::QUESTION_MESSAGE, # Type of message, adds default icon
                             nil, # Custom icon
                             results_files.to_java,
-                            results_files[0])
+                            results_files.last)
 
           unless f.nil?
             sw = WatirRobotGui::Worker::HtmlButton.new
@@ -166,7 +166,7 @@ module WatirRobotGui
                             JOptionPane::QUESTION_MESSAGE, # Type of message, adds default icon
                             nil, # Custom icon
                             results_files.to_java,
-                            results_files[0])
+                            results_files.last)
 
           unless f.nil?
             sw = WatirRobotGui::Worker::XmlButton.new
