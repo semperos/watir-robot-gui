@@ -119,13 +119,61 @@ module WatirRobotGui
 
       # Action Listeners #
       html_button.add_action_listener do |event|
-        sw = WatirRobotGui::Worker::HtmlButton.new
-        sw.execute
+        if results_path_field.text == ''
+          JOptionPane.showMessageDialog(
+                        self,
+                        "You must specify a Results Directory first (see above)",
+                        "No Such Directory",
+                        JOptionPane::ERROR_MESSAGE)
+        else
+          results_dir = Dir.new(results_path_field.text)
+          results_files = results_dir.entries
+          results_files.delete_if { |f| File.directory? f }
+          results_files.delete_if { |f| File.extname(f) != '.html' }
+          f = JOptionPane.showInputDialog(
+                            self, # Swing container
+                            "Select the output file you wish to view:", # Message
+                            "Choose Output File", # Dialog title
+                            JOptionPane::QUESTION_MESSAGE, # Type of message, adds default icon
+                            nil, # Custom icon
+                            results_files.to_java,
+                            results_files[0])
+
+          unless f.nil?
+            sw = WatirRobotGui::Worker::HtmlButton.new
+            sw.target_file = File.join(results_path_field.text, f)
+            sw.execute
+          end
+        end
       end
 
       xml_button.add_action_listener do |event|
-        sw = WatirRobotGui::Worker::XmlButton.new
-        sw.execute
+        if results_path_field.text == ''
+          JOptionPane.showMessageDialog(
+                        self,
+                        "You must specify a Results Directory first (see above)",
+                        "No Such Directory",
+                        JOptionPane::ERROR_MESSAGE)
+        else
+          results_dir = Dir.new(results_path_field.text)
+          results_files = results_dir.entries
+          results_files.delete_if { |f| File.directory? f }
+          results_files.delete_if { |f| File.extname(f) != '.xml' }
+          f = JOptionPane.showInputDialog(
+                            self, # Swing container
+                            "Select the output file you wish to view:", # Message
+                            "Choose Output File", # Dialog title
+                            JOptionPane::QUESTION_MESSAGE, # Type of message, adds default icon
+                            nil, # Custom icon
+                            results_files.to_java,
+                            results_files[0])
+
+          unless f.nil?
+            sw = WatirRobotGui::Worker::XmlButton.new
+            sw.target_file = File.join(results_path_field.text, f)
+            sw.execute
+          end
+        end
       end
 
       ### Add elements to pane and finish layout ###
