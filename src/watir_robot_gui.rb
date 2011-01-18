@@ -16,6 +16,7 @@ require 'rubygems'
 require 'robot_remote_server'
 require 'watir_robot'
 
+java_import 'java.awt.Desktop'
 java_import 'javax.swing.BorderFactory'
 java_import 'javax.swing.ButtonGroup'
 java_import 'javax.swing.JButton'
