@@ -92,8 +92,8 @@ namespace :package do
       # Clean and create directories
       FileUtils.rm_rf(PACKAGE_DIR) if File.exists? PACKAGE_DIR
       [WIN_PACKAGE_DIR, OSX_PACKAGE_DIR, LINUX_PACKAGE_DIR].each do |d|
-        FileUtils.mkdir_p(d) unless File.exists? d
-        FileUtils.mkdir_p(File.join(d, 'resources'))
+        make_if_not(d, :dir)
+        make_if_not(File.join(d, 'resources'), :dir)
 
         # Copy over component parts
         FileUtils.cp_r(SRC_DIR, d)
@@ -103,12 +103,17 @@ namespace :package do
 
     desc "Package Windows version of Watir Robot GUI"
     task :windows do
+      Rake::Task['package:common'].invoke unless File.exists? PACKAGE_DIR
+      
       # Start batch file
       FileUtils.cp(File.join(RESOURCE_DIR, 'windows/start.bat'), WIN_PACKAGE_DIR)
 
-        # Setup batch file
+      # Setup batch file
       FileUtils.cp(File.join(RESOURCE_DIR, 'windows/setup.bat'), WIN_PACKAGE_DIR)
       FileUtils.cp(File.join(RESOURCE_DIR, 'windows/create_shortcuts.vbs'), File.join(WIN_PACKAGE_DIR, 'resources'))
+
+      # Uninstall batch file
+      FileUtils.cp(File.join(RESOURCE_DIR, 'windows/uninstall.bat'), WIN_PACKAGE_DIR)
 
       # Windows-format icon
       FileUtils.cp(File.join(RESOURCE_DIR, 'windows/watir_robot_gui.ico'), File.join(WIN_PACKAGE_DIR, 'resources/watir_robot_gui.ico'))
@@ -116,6 +121,8 @@ namespace :package do
 
     desc "Package Mac OSX version of Watir Robot GUI"
     task :osx do
+      Rake::Task['package:common'].invoke unless File.exists? PACKAGE_DIR
+
       # Start shell file
       FileUtils.cp(File.join(RESOURCE_DIR, 'linux/start.sh'), OSX_PACKAGE_DIR)
         # Setup shell file
@@ -127,6 +134,8 @@ namespace :package do
 
     desc "Package Linux version of Watir Robot GUI"
     task :linux do
+      Rake::Task['package:common'].invoke unless File.exists? PACKAGE_DIR
+
       # Start shell file
       FileUtils.cp(File.join(RESOURCE_DIR, 'linux/start.sh'), LINUX_PACKAGE_DIR)
       # Setup shell file
@@ -152,21 +161,29 @@ namespace :retrieve do
 
   desc "Create local repo of gems and package in jar file"
   task :gem_repo do
-    # we'll use jruby-complete to run everything, so ensure it's there
-    Rake::Task['retrieve:jruby_complete'].invoke
+    if File.exists?(File.join(RUBY_DEP_DIR, 'wr-gems.jar'))
+      puts "Already retrieved: gem dependencies jar"
+    else
+      # we'll use jruby-complete to run everything, so ensure it's there
+      Rake::Task['retrieve:jruby_complete'].invoke
 
-    FileUtils.mkdir_p RUBY_DEP_DIR unless File.exists?(RUBY_DEP_DIR)
-    FileUtils.cd LIB_DIR
-    FileUtils.mkdir 'wr-gems' unless File.exists?('wr-gems')
-    system("java -jar standalone/jruby-complete.jar -S gem install -i ./wr-gems --no-ri --no-rdoc watir_robot")
-    system("jar cf wr-gems.jar -C wr-gems .")
-    FileUtils.mv('wr-gems.jar', RUBY_DEP_DIR)
+      make_if_not(RUBY_DEP_DIR, :dir)
+      FileUtils.cd LIB_DIR
+      make_if_not(File.join(LIB_DIR, 'wr-gems'))
+      system("java -jar standalone/jruby-complete.jar -S gem install -i ./wr-gems --no-ri --no-rdoc watir_robot")
+      system("jar cf wr-gems.jar -C wr-gems .")
+      FileUtils.mv('wr-gems.jar', RUBY_DEP_DIR)
+      FileUtils.rm_rf(File.join(LIB_DIR, 'wr-gems'))
+    end
   end
 
   desc "Retrieve jruby-complete.jar from Github downloads (custom build)"
   task :jruby_complete do
     jruby_jar = File.join(STANDALONE_JAR_DIR, 'jruby-complete.jar')
-    unless File.exists?(jruby_jar)
+    if File.exists?(jruby_jar)
+      puts "Already retrieved: jruby-complete.jar"
+    else
+      make_if_not(STANDALONE_JAR_DIR, :dir)
       uri = URI.parse(REMOTE_JRUBY_JAR)
       http = Net::HTTP.new(uri.host, uri.port)
       req = Net::HTTP::Get.new(uri.request_uri)
@@ -181,7 +198,10 @@ namespace :retrieve do
   desc "Retrieve Robot Framework from Google Code"
   task :robotframework do
     robotframework_jar = File.join(STANDALONE_JAR_DIR, 'robotframework.jar')
-    unless File.exists?(robotframework_jar)
+    if File.exists?(robotframework_jar)
+      puts "Already retrieved: robotframework.jar"
+    else
+      make_if_not(STANDALONE_JAR_DIR, :dir)
       uri = URI.parse(REMOTE_RF_JAR)
       http = Net::HTTP.new(uri.host, uri.port)
       req = Net::HTTP::Get.new(uri.request_uri)
@@ -197,7 +217,10 @@ namespace :retrieve do
   desc "Retrieve MigLayout from its home site"
   task :miglayout do
     miglayout_jar = File.join(JAVA_JAR_DIR, 'miglayout.jar')
-    unless File.exists?(miglayout_jar)
+    if File.exists?(miglayout_jar)
+      puts "Already retrieved: miglayout.jar"
+    else
+      make_if_not(JAVA_JAR_DIR, :dir)
       uri = URI.parse(REMOTE_MIGLAYOUT_JAR)
       http = Net::HTTP.new(uri.host, uri.port)
       req = Net::HTTP::Get.new(uri.request_uri)
@@ -210,10 +233,12 @@ namespace :retrieve do
   end
 
   desc "Retrieve jar dependencies from various locations"
-  task :jars do
-    Rake::Task['clean:jars'].invoke
-    FileUtils.mkdir_p(JAVA_JAR_DIR) unless File.exists?(JAVA_JAR_DIR)
-    FileUtils.mkdir_p(STANDALONE_JAR_DIR) unless File.exists?(STANDALONE_JAR_DIR)
+  task :jars, :clean? do |t, args|
+    clean_bool = args[:clean?] || 'false'
+    Rake::Task['clean:jars'].invoke if clean_bool.downcase == 'true'
+    
+    make_if_not(JAVA_JAR_DIR, :dir)
+    make_if_not(STANDALONE_JAR_DIR, :dir)
     
     puts "Please wait, downloading jars. This could take a while..."
     Rake::Task['retrieve:jruby_complete'].invoke
@@ -254,4 +279,20 @@ end
 YARD::Rake::YardocTask.new do |t|
   t.files = ['submodules/watir-robot/lib/**/*.rb']
   t.options = ['--db', 'watir_robot_yardoc', '--no-output', '--one-file']
+end
+
+#
+# Make a file or directory if it doesn't already exist. Expects fully-qualified paths.
+#
+# @param [String] name Name of file or directory to create
+# @param [Symbol] type :dir for directory, :file for file
+def make_if_not(name, type)
+  if type == :file
+    FileUtils.mkdir_p(File.dirname(name)) unless File.exists?(File.dirname(name))
+    FileUtils.touch(name) unless File.exists?(name)
+  elsif type == :dir
+    FileUtils.mkdir_p(name) unless File.exists?(name)
+  else
+    raise(ArgumentError, "Type may only be :dir for a directory or :file for a file")
+  end
 end
