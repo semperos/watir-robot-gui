@@ -20,20 +20,28 @@ module WatirRobotGui
       self.set_default_close_operation EXIT_ON_CLOSE
 
       # Overall MigLayout parameters
-      layout = MigLayout.new("wrap 2", "[pref!]15[fill,grow]")
+      layout = MigLayout.new("wrap 5", "[]15[][][]5px[]")
       pane = JPanel.new(layout)
 
 
       ### File/Directory Buttons ###
 
       # Definition #
-      file_label = JLabel.new "Choose File(s)"
-      file_button = JButton.new "Open File"
-      dir_button = JButton.new "Open Directory"
-      test_path_field = JTextField.new "Enter full path manually or use buttons above..."
+      # Title
+      file_label = JLabel.new "1. Choose File(s)"
+      # Test path
+      test_path_label = JLabel.new "Test Path:"
+      test_path_field = JTextField.new(150)
+      test_path_button_file = JButton.new "File"
+      test_path_button_dir = JButton.new "Dir"
+      # Results path
+      results_path_label = JLabel.new "Results Path:"
+      results_path_field = JTextField.new(150)
+      results_path_button_file = JButton.new "File"
+      results_path_button_dir = JButton.new "Dir"
 
       # Action Listeners #
-      file_button.add_action_listener do |event|
+      test_path_button_file.add_action_listener do |event|
         chooser = JFileChooser.new
         chooser.set_dialog_title "Choose a File with Robot Framework Tests"
         chooser.set_multi_selection_enabled(false)
@@ -44,7 +52,7 @@ module WatirRobotGui
         end
       end
 
-      dir_button.add_action_listener do |event|
+      test_path_button_dir.add_action_listener do |event|
         chooser = JFileChooser.new
         chooser.set_dialog_title "Choose a Directory with Robot Framework Tests"
         chooser.set_file_selection_mode(JFileChooser::DIRECTORIES_ONLY)
@@ -59,9 +67,11 @@ module WatirRobotGui
       ### Action Buttons ###
 
       # Definition #
-      action_label = JLabel.new "Edit/Run Tests"
+      action_label = JLabel.new "2. Take Action"
+      
+      run_button = JButton.new "Run Tests"
+      
       edit_button = JButton.new "Edit Tests"
-
       editor_rbutton_group = ButtonGroup.new
       editor_rbutton_ride = JRadioButton.new("RIDE", true)
       editor_rbutton_ride.set_action_command(:editor_ride)
@@ -69,9 +79,8 @@ module WatirRobotGui
       editor_rbutton_default.set_action_command(:editor_default)
       editor_buttons = [editor_rbutton_ride, editor_rbutton_default]
       editor_buttons.each { |b| editor_rbutton_group.add b }
+      edit_help = JLabel.new "Note: You must have RIDE installed beforehand to use it here."
       
-      run_button = JButton.new "Run Tests"
-
       # Action Listeners #
       edit_button.add_action_listener do |event|
         editor = nil
@@ -92,7 +101,7 @@ module WatirRobotGui
       ### Results Buttons ###
 
       # Definition #
-      result_label = JLabel.new "View Results"
+      result_label = JLabel.new "3. View Results"
       html_button = JButton.new "HTML"
       xml_button = JButton.new "XML"
       # We'll enable these after a test has run
@@ -104,21 +113,29 @@ module WatirRobotGui
 
       pane.add(file_label, "split, span")
       pane.add(JSeparator.new, "growx, wrap")
-      pane.add(file_button, "sg button")
-      pane.add(dir_button, "sg button")
-      pane.add(test_path_field, "span,grow, gaptop 8")
+
+      pane.add(test_path_label, "gaptop 8")
+      pane.add(test_path_field, "grow, span 2, gaptop 8")
+      pane.add(test_path_button_file, "gaptop 8")
+      pane.add(test_path_button_dir, "gaptop 8")
+
+      pane.add(results_path_label, "gaptop 8")
+      pane.add(results_path_field, "grow, span 2, gaptop 8")
+      pane.add(results_path_button_file, "gaptop 8")
+      pane.add(results_path_button_dir, "gaptop 8")
 
       pane.add(action_label, "split, span, gaptop 15")
       pane.add(JSeparator.new, "growx, wrap, gaptop 15")
-      pane.add(edit_button, "sg button")
-      pane.add(run_button, "sg button")
-      pane.add(editor_rbutton_ride, "wrap")
-      pane.add(editor_rbutton_default, "wrap")
+      pane.add(run_button, "growx, span 5")
+      pane.add(edit_button, "gaptop 8")
+      pane.add(editor_rbutton_ride, "gaptop 8")
+      pane.add(editor_rbutton_default, "wrap, gaptop 8")
+      pane.add(edit_help, "span 5")
 
       pane.add(result_label, "split, span, gaptop 15")
       pane.add(JSeparator.new, "growx, wrap, gaptop 15")
-      pane.add(html_button, "sg button")
-      pane.add(xml_button, "sg button")
+      pane.add(html_button, "sg results_button")
+      pane.add(xml_button, "wrap, sg results_button")
 
       self.set_content_pane(pane)
     end
