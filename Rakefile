@@ -169,7 +169,7 @@ namespace :retrieve do
 
       make_if_not(RUBY_DEP_DIR, :dir)
       FileUtils.cd LIB_DIR
-      make_if_not(File.join(LIB_DIR, 'wr-gems'))
+      make_if_not(File.join(LIB_DIR, 'wr-gems'), :dir)
       system("java -jar standalone/jruby-complete.jar -S gem install -i ./wr-gems --no-ri --no-rdoc watir_robot")
       system("jar cf wr-gems.jar -C wr-gems .")
       FileUtils.mv('wr-gems.jar', RUBY_DEP_DIR)
