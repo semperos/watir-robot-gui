@@ -125,8 +125,10 @@ namespace :package do
 
       # Start shell file
       FileUtils.cp(File.join(RESOURCE_DIR, 'linux/start.sh'), OSX_PACKAGE_DIR)
+      FileUtils.chmod(0777, File.join(OSX_PACKAGE_DIR, 'start.sh'))
         # Setup shell file
       FileUtils.cp(File.join(RESOURCE_DIR, 'linux/setup.sh'), OSX_PACKAGE_DIR)
+      FileUtils.chmod(0777, File.join(OSX_PACKAGE_DIR, 'setup.sh'))
 
       # Mac-format icon
       FileUtils.cp(File.join(RESOURCE_DIR, 'osx/watir_robot_gui.icns'), File.join(OSX_PACKAGE_DIR, 'resources/watir_robot_gui.icns'))
@@ -138,8 +140,10 @@ namespace :package do
 
       # Start shell file
       FileUtils.cp(File.join(RESOURCE_DIR, 'linux/start.sh'), LINUX_PACKAGE_DIR)
+      FileUtils.chmod(0777, File.join(LINUX_PACKAGE_DIR, 'start.sh'))
       # Setup shell file
       FileUtils.cp(File.join(RESOURCE_DIR, 'linux/setup.sh'), LINUX_PACKAGE_DIR)
+      FileUtils.chmod(0777, File.join(LINUX_PACKAGE_DIR, 'setup.sh'))
 
       # PNG-format icon
       FileUtils.cp(File.join(RESOURCE_DIR, 'linux/watir_robot_gui.png'), File.join(LINUX_PACKAGE_DIR, 'resources/watir_robot_gui.png'))
