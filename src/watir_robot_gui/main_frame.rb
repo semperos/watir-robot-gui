@@ -95,19 +95,35 @@ module WatirRobotGui
       
       # Action Listeners #
       edit_button.add_action_listener do |event|
-        editor = nil
-        editor_buttons.each { |b| editor = b.text.downcase if b.selected? }
-        sw = WatirRobotGui::Worker::EditButton.new
-        sw.test_path = test_path_field.text
-        sw.editor = editor
-        sw.execute
+        if test_path_field.text == ''
+          JOptionPane.showMessageDialog(
+                        self,
+                        "You must specify a Test Path first (see above)",
+                        "No Such Directory",
+                        JOptionPane::ERROR_MESSAGE)
+        else
+          editor = nil
+          editor_buttons.each { |b| editor = b.text.downcase if b.selected? }
+          sw = WatirRobotGui::Worker::EditButton.new
+          sw.test_path = test_path_field.text
+          sw.editor = editor
+          sw.execute
+        end
       end
 
       run_button.add_action_listener do |event|
-        sw = WatirRobotGui::Worker::RunButton.new
-        sw.button = run_button
-        sw.test_path = test_path_field.text
-        sw.execute
+        if test_path_field.text == ''
+          JOptionPane.showMessageDialog(
+                        self,
+                        "You must specify a Test Path first (see above)",
+                        "No Such Directory",
+                        JOptionPane::ERROR_MESSAGE)
+        else
+          sw = WatirRobotGui::Worker::RunButton.new
+          sw.button = run_button
+          sw.test_path = test_path_field.text
+          sw.execute
+        end
       end
 
       ### Results Buttons ###
