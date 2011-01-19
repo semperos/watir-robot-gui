@@ -3,9 +3,11 @@ module WatirRobotGui
   module Worker
 
     class EditButton < javax.swing.SwingWorker
-      attr_accessor :editor, :test_path
+      attr_accessor :status_bar, :editor, :test_path
       
       def doInBackground
+        self.status_bar.text = "Opening editor to edit tests..."
+        
         if self.editor == 'ride'
           if self.test_path == ''
             IO.popen("ride.py")
@@ -19,7 +21,6 @@ module WatirRobotGui
             if d.is_supported? Desktop::Action::OPEN
               begin
                 name = self.test_path.gsub('\\', '/')
-                puts name
                 fh = java.io.File.new(name)
                 d.open(fh)
               rescue java.io.IOException => e

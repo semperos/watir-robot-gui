@@ -12,8 +12,6 @@ module WatirRobotGui
                               yardoc_file = self.yardoc_cache,
                               yardoc_options = self.yardoc_options)
       end
-
     end
-
   end
 end

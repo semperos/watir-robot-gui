@@ -6,7 +6,7 @@ module WatirRobotGui
   class MainFrame < javax.swing.JFrame
     def initialize
       # Set native look and feel instead of default Metal
-      native_lf = UIManager.get_system_look_and_feel_class_name
+      native_lf = 'com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel' # UIManager.get_system_look_and_feel_class_name
       begin
         UIManager.set_look_and_feel(native_lf)
       rescue InstantiationException => e
@@ -23,6 +23,9 @@ module WatirRobotGui
       layout = MigLayout.new("wrap 5", "[]15[][][]5px[]")
       pane = JPanel.new(layout)
 
+      ## Status Bar ##
+      status_bar = JLabel.new("Choose tests, take action, view results.")
+      status_bar.set_border(BorderFactory.createLoweredBevelBorder)
 
       ### File/Directory Buttons ###
 
@@ -104,10 +107,36 @@ module WatirRobotGui
         else
           editor = nil
           editor_buttons.each { |b| editor = b.text.downcase if b.selected? }
-          sw = WatirRobotGui::Worker::EditButton.new
-          sw.test_path = test_path_field.text
-          sw.editor = editor
-          sw.execute
+          if editor == 'system default' and File.directory?(test_path_field.text)
+            # RIDE will take a directory as an argument, but
+            # if system default is selected, only a file browser will
+            # display. We want to open a single test file, in this case.
+            test_dir = Dir.new(test_path_field.text)
+            test_files = test_dir.entries
+            test_files.delete_if { |f| File.directory? f }
+            f = JOptionPane.showInputDialog(
+                              self, # Swing container
+                              "Select the test file you wish to edit:", # Message
+                              "Choose Choose File", # Dialog title
+                              JOptionPane::QUESTION_MESSAGE, # Type of message, adds default icon
+                              nil, # Custom icon
+                              test_files.to_java,
+                              test_files.first)
+
+            unless f.nil?
+              sw = WatirRobotGui::Worker::EditButton.new
+              sw.status_bar = status_bar
+              sw.editor = editor
+              sw.test_path = File.join(test_path_field.text, f)
+              sw.execute
+            end
+          else
+            sw = WatirRobotGui::Worker::EditButton.new
+            sw.status_bar = status_bar
+            sw.test_path = test_path_field.text
+            sw.editor = editor
+            sw.execute
+          end
         end
       end
 
@@ -120,7 +149,7 @@ module WatirRobotGui
                         JOptionPane::ERROR_MESSAGE)
         else
           sw = WatirRobotGui::Worker::RunButton.new
-          sw.button = run_button
+          sw.status_bar = status_bar
           sw.test_path = test_path_field.text
           sw.execute
         end
@@ -157,6 +186,7 @@ module WatirRobotGui
 
           unless f.nil?
             sw = WatirRobotGui::Worker::HtmlButton.new
+            sw.status_bar = status_bar
             sw.target_file = File.join(results_path_field.text, f)
             sw.execute
           end
@@ -186,6 +216,7 @@ module WatirRobotGui
 
           unless f.nil?
             sw = WatirRobotGui::Worker::XmlButton.new
+            sw.status_bar = status_bar
             sw.target_file = File.join(results_path_field.text, f)
             sw.execute
           end
@@ -198,12 +229,12 @@ module WatirRobotGui
       pane.add(JSeparator.new, "growx, wrap")
 
       pane.add(test_path_label, "gaptop 8")
-      pane.add(test_path_field, "grow, span 2, gaptop 8")
+      pane.add(test_path_field, "w 220!, span 2, gaptop 8")
       pane.add(test_path_button_file, "gaptop 8")
       pane.add(test_path_button_dir, "gaptop 8")
 
       pane.add(results_path_label, "gaptop 8")
-      pane.add(results_path_field, "grow, span 2, gaptop 8")
+      pane.add(results_path_field, "w 220!, span 2, gaptop 8")
       pane.add(results_path_button_dir, "growx, span 2, gaptop 8")
       pane.add(same_as_test_checkbox, "span 5")
 
@@ -220,7 +251,13 @@ module WatirRobotGui
       pane.add(html_button, "sg results_button")
       pane.add(xml_button, "wrap, sg results_button")
 
-      self.set_content_pane(pane)
+      pane.add(JSeparator.new, "grow, span 5, gaptop 25")
+      pane.add(status_bar, "span 5, gaptop 5, dock south")
+
+      container_layout = layout = MigLayout.new("wrap 1", "[fill]")
+      container_pane = JPanel.new(container_layout)
+      container_pane.add(pane, "pad 10px 10px 10px")
+      self.set_content_pane(container_pane)
     end
 
     def run_remote_server(host, port, yardoc_cache, yardoc_options)

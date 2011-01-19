@@ -38,6 +38,7 @@ f = WatirRobotGui::MainFrame.new
 yardoc_cache = File.join(File.expand_path(File.dirname(__FILE__)), '../lib/ruby/watir_robot_yardoc')
 yardoc_options = [[:docstring, ''], [:file, 'File'], [:source, 'Source Code']]
 f.run_remote_server('localhost', 8270, yardoc_cache, yardoc_options)
-#f.set_size(400, 350)
-f.pack
+f.set_size(475, 425)
+f.set_resizable false
+#f.pack
 f.visible = true

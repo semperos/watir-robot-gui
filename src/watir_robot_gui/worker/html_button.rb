@@ -3,9 +3,11 @@ module WatirRobotGui
   module Worker
 
     class HtmlButton < javax.swing.SwingWorker
-      attr_accessor :target_file
+      attr_accessor :status_bar, :target_file
 
       def doInBackground
+        self.status_bar.text = "Opening browser to view HTML results..."
+        
         if Desktop.is_desktop_supported?
           d = Desktop.get_desktop
           if d.is_supported? Desktop::Action::OPEN
