@@ -4,8 +4,8 @@ require 'uri'
 require 'zip/zip'
 require 'yard'
 
-REMOTE_JRUBY_JAR = "http://jruby.org.s3.amazonaws.com/downloads/1.5.6/jruby-complete-1.5.6.jar"
-REMOTE_RF_JAR = "http://robotframework.googlecode.com/files/robotframework-2.5.5.jar"
+REMOTE_JRUBY_JAR = "http://mirrors.ibiblio.org/pub/mirrors/maven2/org/jruby/jruby-complete/1.5.6/jruby-complete-1.5.6.jar"
+REMOTE_RF_JAR = "http://mirrors.ibiblio.org/pub/mirrors/maven2/org/robotframework/robotframework/2.5.5/robotframework-2.5.5.jar"
 REMOTE_MIGLAYOUT_JAR = "http://www.migcalendar.com/miglayout/versions/3.7.3.1/miglayout-3.7.3.1-swing.jar"
 
 PROJECT_HOME = File.expand_path(File.dirname(__FILE__))
