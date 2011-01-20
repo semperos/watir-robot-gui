@@ -6,9 +6,9 @@ module WatirRobotGui
   class MainFrame < javax.swing.JFrame
     def initialize
       # Set native look and feel instead of default Metal
-      native_lf = 'com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel' # UIManager.get_system_look_and_feel_class_name
+      laf = 'com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel' # UIManager.get_system_look_and_feel_class_name
       begin
-        UIManager.set_look_and_feel(native_lf)
+        UIManager.set_look_and_feel(laf)
       rescue InstantiationException => e
       rescue ClassNotFoundException => e
       rescue UnsupportedLookAndFeelException => e
