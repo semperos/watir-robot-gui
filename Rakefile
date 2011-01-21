@@ -173,7 +173,7 @@ namespace :retrieve do
 
       make_if_not(RUBY_DEP_DIR, :dir)
       FileUtils.cd RUBY_DEP_DIR
-      system("java -jar standalone/jruby-complete.jar -S gem install -i ./wr-gems --no-ri --no-rdoc watir_robot")
+      system("java -jar ../standalone/jruby-complete.jar -S gem install -i ./wr-gems --no-ri --no-rdoc watir_robot")
       if File.exists?(File.join(RUBY_DEP_DIR, 'wr-gems'))
         puts "Gem repo created successfully."
       end
