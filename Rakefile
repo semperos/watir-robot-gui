@@ -165,19 +165,18 @@ namespace :retrieve do
 
   desc "Create local repo of gems and package in jar file"
   task :gem_repo do
-    if File.exists?(File.join(RUBY_DEP_DIR, 'wr-gems.jar'))
-      puts "Already retrieved: gem dependencies jar"
+    if File.exists?(File.join(RUBY_DEP_DIR, 'wr-gems'))
+      puts "Already retrieved: gem dependencies"
     else
       # we'll use jruby-complete to run everything, so ensure it's there
       Rake::Task['retrieve:jruby_complete'].invoke
 
       make_if_not(RUBY_DEP_DIR, :dir)
-      FileUtils.cd LIB_DIR
-      make_if_not(File.join(LIB_DIR, 'wr-gems'), :dir)
+      FileUtils.cd RUBY_DEP_DIR
       system("java -jar standalone/jruby-complete.jar -S gem install -i ./wr-gems --no-ri --no-rdoc watir_robot")
-      system("jar cf wr-gems.jar -C wr-gems .")
-      FileUtils.mv('wr-gems.jar', RUBY_DEP_DIR)
-      FileUtils.rm_rf(File.join(LIB_DIR, 'wr-gems'))
+      if File.exists?(File.join(RUBY_DEP_DIR, 'wr-gems'))
+        puts "Gem repo created successfully."
+      end
     end
   end
 
