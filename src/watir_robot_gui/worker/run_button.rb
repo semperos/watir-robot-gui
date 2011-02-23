@@ -6,7 +6,7 @@ module WatirRobotGui
       attr_accessor :status_bar, :test_path
 
       def doInBackground
-        self.status_bar.text = "Running tests. Wait until all browsers have closed."
+        self.status_bar.text = "RUNNING TESTS. Wait until all browsers have closed."
         self.test_path = self.test_path.gsub('\\', '/')
         
         # Ensure the parameter to -d below is a directory
