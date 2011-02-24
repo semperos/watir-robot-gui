@@ -29,7 +29,8 @@ namespace :clean do
   task :all do
     Rake::Task['clean:jars'].invoke
     Rake::Task['clean:yardoc'].invoke
-    Rake::Task['clean:zips'].invoke
+    Rake::Task['clean:package'].invoke
+#    Rake::Task['clean:zips'].invoke
   end
 
   desc "Clean out dependency jars"
@@ -37,9 +38,14 @@ namespace :clean do
     Dir.glob(File.join(JAVA_JAR_DIR, '*.jar')).each do |f|
       FileUtils.rm(f)
     end
-	Dir.glob(File.join(STANDALONE_JAR_DIR, '*.jar')).each do |f|
+    Dir.glob(File.join(STANDALONE_JAR_DIR, '*.jar')).each do |f|
       FileUtils.rm(f)
-	end
+    end
+  end
+
+  desc "Delete the package folder and all contents"
+  task :package do
+    FileUtils.rm_rf(PACKAGE_DIR) if File.exists?(PACKAGE_DIR)
   end
 
   desc "Delete yardoc cache from resources folder"
