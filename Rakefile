@@ -16,6 +16,7 @@ RESOURCE_DIR = File.join(PROJECT_HOME, 'resources')
 JAVA_JAR_DIR = File.join(PROJECT_HOME, 'lib/java')
 STANDALONE_JAR_DIR = File.join(PROJECT_HOME, 'lib/standalone')
 RUBY_DEP_DIR = File.join(PROJECT_HOME, 'lib/ruby')
+GEM_REPO_DIR = File.join(RUBY_DEP_DIR, 'wr-gems')
 YARDOC_CACHE = File.join(RUBY_DEP_DIR, 'watir_robot_yardoc')
 
 PACKAGE_DIR = File.join(PROJECT_HOME, 'package')
@@ -44,6 +45,11 @@ namespace :clean do
   desc "Delete yardoc cache from resources folder"
   task :yardoc do
     FileUtils.rm_rf(YARDOC_CACHE) if File.exists?(YARDOC_CACHE)
+  end
+
+  desc "Delete gem repo from Ruby deps folder"
+  task :gem_repo do
+    FileUtils.rm_rf(GEM_REPO_DIR) if File.exists?(GEM_REPO_DIR)
   end
 
   desc "Delete generated zip files"
@@ -103,7 +109,16 @@ namespace :package do
 
     desc "Package Windows version of Watir Robot GUI"
     task :windows do
-      Rake::Task['package:common'].invoke unless File.exists? PACKAGE_DIR
+#      Rake::Task['package:setup:common'].invoke unless File.exists? PACKAGE_DIR
+      # Clean and create directories
+      unless File.exists? PACKAGE_DIR
+        make_if_not(WIN_PACKAGE_DIR, :dir)
+        make_if_not(File.join(WIN_PACKAGE_DIR, 'resources'), :dir)
+
+        # Copy over component parts
+        FileUtils.cp_r(SRC_DIR, WIN_PACKAGE_DIR)
+        FileUtils.cp_r(LIB_DIR, WIN_PACKAGE_DIR)
+      end
       
       # Start batch file
       FileUtils.cp(File.join(RESOURCE_DIR, 'windows/start.bat'), WIN_PACKAGE_DIR)
