@@ -117,7 +117,7 @@ namespace :package do
     task :windows do
 #      Rake::Task['package:setup:common'].invoke unless File.exists? PACKAGE_DIR
       # Clean and create directories
-      unless File.exists? PACKAGE_DIR
+      unless File.exists? WIN_PACKAGE_DIR
         make_if_not(WIN_PACKAGE_DIR, :dir)
         make_if_not(File.join(WIN_PACKAGE_DIR, 'resources'), :dir)
 
