@@ -131,7 +131,7 @@ namespace :package do
 
       # Setup batch file
       FileUtils.cp(File.join(RESOURCE_DIR, 'windows/setup.bat'), WIN_PACKAGE_DIR)
-      FileUtils.cp(File.join(RESOURCE_DIR, 'windows/create_shortcuts.vbs'), File.join(WIN_PACKAGE_DIR, 'resources'))
+      FileUtils.cp(File.join(RESOURCE_DIR, 'windows/create_shortcuts.vbs'), File.join(WIN_PACKAGE_DIR, 'resources/create_shortcuts.vbs'))
 
       # Uninstall batch file
       FileUtils.cp(File.join(RESOURCE_DIR, 'windows/uninstall.bat'), WIN_PACKAGE_DIR)
